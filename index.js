@@ -44,23 +44,75 @@ const jugadoresLeyendas = [
     "Alessandro Del Piero", "Francesco Totti"
 ];
 
+const promocion = ["Adriana Mattos", "Adriano Camacho", "Adriano Nuñez", "Adriano Quispe", "Alvaro", "Angeles", "Angelo", "Bryan (Hiuw)", "Cielo", "Dayra", "Diego (Michi)", "Elkin", "Fabian (FB)", "Gonzalo", "Henry", "Jamilet", "Jaqui", "Jeremy", "Jimena", "Joaquin (kbro)", "Joseph (D2)", "Julian", "Kenji", "Karla", "Kevin", "Laura", "Luisana", "Maria Jose", "Mariana", "Mariel", "Marycielo", "Matias (Eterete)", "Melanie", "Nathaly", "Nicolle", "Nita", "Pamela", "Sandra", "Pinoooo", "Rafael", "Rebeca", "Renzo (Pacho)", "Sebastian", "Selena", "Teran", "Victor (who?)", "Viery", "Prof. Gloria", "Prof. Arturo", "Prof. Jhon", "Prof. Zevallos", "Instructor Alex"];
+
+
+const clubes = [
+    // Europa - España
+    "Real Madrid", "FC Barcelona", "Atlético de Madrid", "Sevilla FC", "Valencia CF",
+    // Europa - Inglaterra
+    "Manchester United", "Liverpool", "Manchester City", "Chelsea", "Arsenal",
+    "Tottenham Hotspur", "Newcastle United", "Aston Villa",
+    // Europa - Italia
+    "Juventus", "AC Milan", "Inter de Milán", "AS Roma", "Napoli", "Lazio",
+    // Europa - Alemania
+    "Bayern Munich", "Borussia Dortmund", "RB Leipzig", "Bayer Leverkusen",
+    // Europa - Francia
+    "Paris Saint-Germain", "Olympique de Marseille", "AS Monaco", "Lyon",
+    // Europa - Portugal
+    "Benfica", "FC Porto", "Sporting de Lisboa",
+    // Europa - Países Bajos
+    "Ajax", "PSV Eindhoven", "Feyenoord",
+    // Sudamérica - Brasil
+    "Flamengo", "Palmeiras", "São Paulo", "Corinthians", "Santos", "Grêmio",
+    "Internacional", "Cruzeiro", "Vasco da Gama", "Botafogo", "Atlético Mineiro",
+    // Sudamérica - Argentina
+    "Boca Juniors", "River Plate", "Independiente", "Racing Club", "San Lorenzo",
+    "Huracán", "Vélez Sarsfield", "Estudiantes de La Plata", "Newell's Old Boys",
+    // Sudamérica - Uruguay
+    "Peñarol", "Nacional",
+    // Sudamérica - Colombia
+    "Millonarios", "América de Cali", "Atlético Nacional", "Deportivo Cali",
+    // Sudamérica - Chile
+    "Colo-Colo", "Universidad de Chile", "Universidad Católica",
+    // **PERÚ - Clubes Peruanos**
+    "Alianza Lima", "Universitario de Deportes", "Sporting Cristal",
+    "FBC Melgar", "Sport Boys", "Deportivo Municipal",
+    "Cienciano", "Juan Aurich", "Unión Huaral",
+    // México
+    "América", "Guadalajara", "Cruz Azul", "UNAM Pumas", "Tigres UANL", "Monterrey",
+    // Resto del mundo
+    "Celtic", "Rangers", "Galatasaray", "Fenerbahçe", "Besiktas",
+    "Shakhtar Donetsk", "Dinamo Zagreb", "Red Bull Salzburg",
+    // Asia
+    "Al Hilal", "Al Ahly", "Wydad Casablanca",
+    // MLS y otros
+    "Los Angeles FC", "Inter Miami", "Atlanta United", "Seattle Sounders"
+];
 
 let arrayJuego = [];
 let indiceActual = 0;
 let jugadorElegido = "";
 
-function mostrarJugadorActual() {
+function validarConfiguracion(cantidadJugadores, cantidadImpostores) {
+    if (cantidadImpostores >= cantidadJugadores) {
+        alert("Error: No puede haber más impostores que jugadores");
+        return false;
+    }
+
+    if (cantidadJugadores < 3) {
+        alert("Error: Mínimo 3 jugadores");
+        return false;
+    }
+
+    return true;
+}
+
+function inicializarPartida(listaJugadores) {
     const cantidadJugadores = parseInt(document.getElementById('cantidadJugadores').value);
     const cantidadImpostores = parseInt(document.getElementById('cantidadImpostores').value);
 
-    // Validaciones
-    if (cantidadImpostores >= cantidadJugadores) {
-        alert("Error: No puede haber más impostores que jugadores");
-        return;
-    }
-
-    if (cantidadJugadores < 2) {
-        alert("Error: Minimo 3 jugadores");
+    if (!validarConfiguracion(cantidadJugadores, cantidadImpostores)) {
         return;
     }
 
@@ -69,20 +121,14 @@ function mostrarJugadorActual() {
     indiceActual = 0;
 
     // Obtener jugador actual aleatorio
-    const indiceAleatorio = Math.floor(Math.random() * jugadoresActuales.length);
-    jugadorElegido = jugadoresActuales[indiceAleatorio];
+    const indiceAleatorio = Math.floor(Math.random() * listaJugadores.length);
+    jugadorElegido = listaJugadores[indiceAleatorio];
 
     // Crear array con impostores y jugadores
-    for (let i = 0; i < cantidadImpostores; i++) {
-        arrayJuego.push("IMPOSTOR");
-    }
+    arrayJuego = Array(cantidadImpostores).fill("IMPOSTOR")
+        .concat(Array(cantidadJugadores - cantidadImpostores).fill(jugadorElegido));
 
-    // Completar con el jugador elegido
-    for (let i = 0; i < cantidadJugadores - cantidadImpostores; i++) {
-        arrayJuego.push(jugadorElegido);
-    }
-
-    // Mezclar el array aleatoriamente
+    // Mezclar el array aleatoriamente (algoritmo Fisher-Yates)
     for (let i = arrayJuego.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [arrayJuego[i], arrayJuego[j]] = [arrayJuego[j], arrayJuego[i]];
@@ -93,53 +139,24 @@ function mostrarJugadorActual() {
     document.getElementById('contador').textContent = `Total: ${arrayJuego.length}`;
 
     console.log("Array creado:", arrayJuego);
+}
+
+function mostrarJugadorActual() {
+    inicializarPartida(jugadoresActuales);
 }
 
 function mostrarJugadorLeyenda() {
-    const cantidadJugadores = parseInt(document.getElementById('cantidadJugadores').value);
-    const cantidadImpostores = parseInt(document.getElementById('cantidadImpostores').value);
-
-    // Validaciones
-    if (cantidadImpostores >= cantidadJugadores) {
-        alert("Error: No puede haber más impostores que jugadores");
-        return;
-    }
-
-    if (cantidadJugadores < 2) {
-        alert("Error: Minimo 3 jugadores");
-        return;
-    }
-
-    // Resetear variables
-    arrayJuego = [];
-    indiceActual = 0;
-
-    // Obtener jugador actual aleatorio
-    const indiceAleatorio = Math.floor(Math.random() * jugadoresLeyendas.length);
-    jugadorElegido = jugadoresLeyendas[indiceAleatorio];
-
-    // Crear array con impostores y jugadores
-    for (let i = 0; i < cantidadImpostores; i++) {
-        arrayJuego.push("IMPOSTOR");
-    }
-
-    // Completar con el jugador elegido
-    for (let i = 0; i < cantidadJugadores - cantidadImpostores; i++) {
-        arrayJuego.push(jugadorElegido);
-    }
-
-    // Mezclar el array aleatoriamente
-    for (let i = arrayJuego.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arrayJuego[i], arrayJuego[j]] = [arrayJuego[j], arrayJuego[i]];
-    }
-
-    // Mostrar información inicial
-    document.getElementById('jugadorActual').textContent = "Partida creada. Haz clic en 'Mostrar Siguiente'";
-    document.getElementById('contador').textContent = `Total: ${arrayJuego.length}`;
-
-    console.log("Array creado:", arrayJuego);
+    inicializarPartida(jugadoresActuales);
 }
+
+function mostrarPromocion() {
+    inicializarPartida(promocion);
+}
+
+function mmostrarClubes() {
+    inicializarPartida(clubes);
+}
+
 
 function mostrarSiguiente() {
     if (arrayJuego.length === 0) {
@@ -158,7 +175,7 @@ function mostrarSiguiente() {
     if (elementoActual === "IMPOSTOR") {
         jugadorActualDiv.innerHTML = `<span class="text-red-500">${elementoActual} ☠️</span>`;
     } else {
-        jugadorActualDiv.innerHTML = `<span class="text-green-500">${elementoActual} ⚽</span>`;
+        jugadorActualDiv.innerHTML = `<span class="text-green-500">${elementoActual} </span>`;
     }
 
     document.getElementById('contador').textContent = `Mostrando ${indiceActual + 1} de ${arrayJuego.length}`;
